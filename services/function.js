@@ -45,20 +45,16 @@ const checkBank = (bank_code, bank_number) => {
             });
     });
 };
-
-const registerAPI = (username, password, phone_number) => {
+const registerAPI = (username, password) => {
     var timestart = moment(new Date());
+
     return new Promise((resolve, reject) => {
         axios
-            .get(serverAPI + "/add_member?playername=" + username + "&playertelno=" + phone_number + "&playerpassword=" + password + "&playerdescription=SLOTXE88TH")
+            .get(serverAPI + "/add_member?username=" + username)
             .then((response) => {
                 timeout_api("/add_member", timestart, moment(new Date()));
                 console.log("REGISTER API SUCCESS");
-                if (response.data.code == 0) {
-                    resolve(response);
-                } else {
-                    resolve(null);
-                }
+                resolve(response);
             })
             .catch((err) => {
                 console.log(err);

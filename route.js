@@ -20,21 +20,16 @@ module.exports = (app) => {
     //route
     //PAC
     app.post("/api/login", verifyBody, pac.login); //
-    app.post("/api/register", verifyBody, pac.register); //
     app.get("/api/is_login", verifyToken, pac.is_login); //
-    app.post("/api/otp", verifyToken, pac.otp); //
-    app.post("/api/otp_verify", verifyToken, pac.otp_verify); //
     app.get("/api/LoginAccessToken", verifyToken, pac.LoginAccessToken);
-    app.post("/api/update_profile", verifyToken, pac.update_profile); //
     app.post("/api/forgetPasswordWeb", verifyBody, pac.forgetPasswordWeb); //
     app.post("/api/Resetpassword_game", verifyToken, pac.Resetpassword_game); //
-
-
-
     app.post("/api/validateRegister/:type", verifyBody, pac.validateRegister); //
+    app.post("/api/otp", verifyToken, pac.otp); //
     app.post("/api/verify_OTP", verifyBody, pac.verify_OTP); //
     app.post("/api/verify_phone", verifyBody, pac.verify_phone); //
     app.post("/api/register_NEW", verifyBody, pac.register_NEW); //
+    app.post("/api/resetpassword_web", verifyToken, pac.resetpassword_web); //
 
     //AFF
     app.post("/api/affiliateRegister", verifyToken, aff.affiliateRegister);
@@ -112,33 +107,4 @@ module.exports = (app) => {
     app.post("/api/receive_lottoByID", verifyToken, lotto.receive_lottoByID);
     app.get("/api/getListAllByUser", verifyToken, lotto.getListAllByUser);
 
-
-    var uploadPath = __dirname + "/uploads";
-    var path = require("path");
-    var mime = require("mime");
-    var fs = require("fs");
-    app.get("/api/uploads", function(req, res) {
-        var file = uploadPath + "/" + req.query.file;
-        var filename = path.basename(file);
-        var mimetype = mime.lookup(file);
-        res.setHeader("Content-disposition", "attachment; filename=" + filename);
-        res.setHeader("Content-type", mimetype);
-        var filestream = fs.createReadStream(file);
-        filestream.pipe(res);
-    });
-
-    app.post("/api/uploadprofile", function(req, res) {
-        var config = {
-            method: "post",
-            url: "https://file2.abagroup.online/api/upload?type=Profile",
-            data: req.body,
-        };
-        axios(config)
-            .then(function(response) {
-                console.log(JSON.stringify(response.data));
-            })
-            .catch(function(error) {
-                // console.log(error);
-            });
-    });
 };

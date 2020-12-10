@@ -17,7 +17,7 @@ verifyBody = (req, res, next) => {
     }
     let error = {};
     if (req.body.token) {
-        let token = req.body.token;
+        let token = req.body.token; +
         jwt.verify(token, process.env.SECRETKEY_BODY, function(err, payload) {
             if (err) {
                 res.status(401).json({

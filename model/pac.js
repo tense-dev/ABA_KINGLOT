@@ -533,6 +533,47 @@ PAC.forgetPasswordWeb = async(req, res) => {
 };
 
 
+
+PAC.resetpassword_web = async(req, res) => {
+    if (req.user && req.body.password) {
+        let username = req.user.username;
+        let password = req.body.password;
+        if (req.body.password == "") {
+            res.json({
+                code: 1,
+                msg: "กรุณาระบุรหัสผ่าน"
+            })
+        }
+        console.log(username)
+        let getUser = await Func.exeSQL("SELECT * FROM t_member_account WHERE username = ?", [username]);
+        if (getUser.length > 0) {
+            let resultUpdate = await Func.exeSQL("UPDATE t_member_account SET password = ? WHERE username = ?", [password, username]);
+            if (resultUpdate) {
+                res.json({
+                    code: 0,
+                    msg: "เปลี่ยนรหัสผ่านเป็น " + password + " เรียบร้อย"
+                })
+            } else {
+                res.json({
+                    code: 1,
+                    msg: "เกิดข้อผิดพลาด ไม่สามารถเปลี่ยนรหัสผ่านได้ในขณะนี้"
+                })
+            }
+        } else {
+            res.json({
+                code: 1,
+                msg: "ไม่พบยูสน์นี้ในระบบ"
+            })
+        }
+
+    } else {
+        res.json({
+            code: 1,
+            msg: "PATAMETER NOT FLOUND"
+        })
+    }
+}
+
 //NEW REGISTER
 
 PAC.verify_OTP = async(req, res) => {
@@ -903,8 +944,14 @@ PAC.register_NEW = async(req, res) => {
             let resultDupi = await checkDuplibank(bankList);
             if (resultDupi && (await checkAllBank(bankList))) {
                 let timeLength = moment().valueOf().toString().length;
-                let username = "";
-                let resultRegister = await Func.registerAPI(bankList.bank_name, 'Aa112233', bank_number);
+                let username =
+                    prefix +
+                    moment()
+                    .valueOf()
+                    .toString()
+                    .substr(timeLength - 9);
+                let resultRegister = await Func.registerAPI(username, password);
+                console.log(resultRegister)
                 if (resultRegister.data.username) {
                     let genUsername = resultRegister.data.username;
                     let payload = {
