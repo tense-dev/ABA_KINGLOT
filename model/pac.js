@@ -950,10 +950,15 @@ PAC.register_NEW = async(req, res) => {
                     .valueOf()
                     .toString()
                     .substr(timeLength - 9);
-                let resultRegister = await Func.registerAPI(username, password);
-                console.log(resultRegister)
-                if (resultRegister.data.username) {
-                    let genUsername = resultRegister.data.username;
+
+                let ok = bankList ? bankList.bank_name.split(' ') : [];
+                let fistname = (ok.length == 3 ? ok[0] + '' + ok[1] : ok[0]) || '';
+                let lastname = ok[ok.length - 1] || '';
+                let refKey = aff_join ? aff_join : '';
+                let resultRegister = await Func.registerAPI(username, password, fistname, lastname, refKey);
+
+                if (!resultRegister.data.Status) {
+                    let genUsername = username;
                     let payload = {
                         date_regis: new Date(),
                         username: genUsername,
@@ -1149,6 +1154,65 @@ PAC.Resetpassword_game = async(req, res) => {
                 msg: "เกิดข้อผิดพลาด กรุณาลองใหม่ภายหลัง"
             })
         });
+};
+
+
+
+
+PAC.reportProblem = async(req, res, next) => {
+    if (req.user && req.body) {
+        if (typeof req.body.comment == "string" && typeof req.body.title == "string") {
+            connection.query(
+                "SELECT username FROM t_complain_log WHERE username = ? AND date >=  ? ", [req.user.username, momentjs().add(-1, "hours").format("YYYY-MM-DD HH:mm:ss")],
+                (error, checkComment) => {
+                    if (error) {
+                        res.json({
+                            code: 1,
+                            msg: "ไม่สามารถตรวจสอบรายการแจ้งปัญหาได้ในขณะนี้!",
+                        });
+                    } else if (checkComment.length == 0) {
+                        let payload = {
+                            date: momentjs().format("YYYY-MM-DD HH:mm:ss"),
+                            username: req.user.username,
+                            comment: req.body.comment.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, "").toString(),
+                            title: req.body.title.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, "").toString(),
+                            status: 0,
+                            solve: "",
+                        };
+
+                        connection.query("INSERT INTO t_complain_log SET ? ", payload, (error, resultInsert) => {
+                            if (error) {
+                                res.json({
+                                    code: 1,
+                                    msg: "ไม่สามารถเพิ่มรายการแจ้งปัญหาได้ในขณะนี้! 01",
+                                });
+                            } else {
+                                res.json({
+                                    code: 0,
+                                    msg: "เพิ่มรายการแจ้งปัญหาสำเร็จ!",
+                                });
+                            }
+                        });
+                    } else {
+                        res.json({
+                            code: 1,
+                            msg: "ไม่สามารถเพิ่มรายการแจ้งปัญหาได้ในขณะนี้ เนื่องจากลูกค้าได้เพิ่มไปเมื่อไม่นานมานี้!",
+                        });
+                    }
+                }
+            );
+        } else {
+            res.json({
+                code: 1,
+                msg: "ไม่สามารถเพิ่มรายการแจ้งปัญหาได้ในขณะนี้!",
+            });
+        }
+    } else {
+        res.json({
+            code: 1,
+            msg: "NOT_FOUND_PARAMETER",
+        });
+    }
 };
 
 

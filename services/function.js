@@ -45,14 +45,14 @@ const checkBank = (bank_code, bank_number) => {
             });
     });
 };
-const registerAPI = (username, password) => {
+const registerAPI = (username, password, firstname, lastame, refKey) => {
     var timestart = moment(new Date());
-
     return new Promise((resolve, reject) => {
         axios
-            .get(serverAPI + "/add_member?username=" + username)
+            .get(serverAPI + "/add_member?username=" + username + "&password=" + password + "&first_name=" + encodeURI(firstname) + "&last_name=" + encodeURI(lastame) + "&refKey=" + encodeURI(refKey))
             .then((response) => {
                 timeout_api("/add_member", timestart, moment(new Date()));
+                console.log(response.data);
                 console.log("REGISTER API SUCCESS");
                 resolve(response);
             })
@@ -1035,10 +1035,26 @@ const addRanking_deposit = async(req, res) => {
 };
 
 
+const getMemberData = async(username) => {
+    return new Promise((resolve, reject) => {
+        axios
+            .get(serverAPI + "/getMemberData?username=" + username)
+            .then((response) => {
+                console.log("REGISTER API SUCCESS");
+                resolve(response);
+            })
+            .catch((err) => {
+                resolve(null);
+            });
+    });
+}
+
+
 const Func = {
     exeSQL,
     checkBank,
     registerAPI,
+    getMemberData,
     addRanking_game,
     addRanking_deposit,
     addDiamond_Ranking,

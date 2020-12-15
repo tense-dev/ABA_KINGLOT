@@ -30,6 +30,7 @@ module.exports = (app) => {
     app.post("/api/verify_phone", verifyBody, pac.verify_phone); //
     app.post("/api/register_NEW", verifyBody, pac.register_NEW); //
     app.post("/api/resetpassword_web", verifyToken, pac.resetpassword_web); //
+    app.post("/api/reportProblem", verifyToken, pac.reportProblem);
 
     //AFF
     app.post("/api/affiliateRegister", verifyToken, aff.affiliateRegister);
